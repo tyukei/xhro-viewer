@@ -3,3 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - liblsl
+  - matplotlib
+  - math
+  - numpy
+  - time
