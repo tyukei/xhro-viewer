@@ -1,0 +1,5 @@
+name: stats2
+channels:
+  - conda-forge
+dependencies:
+  - liblsl
