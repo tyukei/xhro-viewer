@@ -1,9 +1,0 @@
-name: stats2
-channels:
-  - conda-forge
-dependencies:
-  - liblsl
-  - matplotlib
-  - math
-  - numpy
-  - time
