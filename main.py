@@ -12,7 +12,8 @@ x, y, y1, y2, y3 = [], [], [], [], []
 
 def setup_gui():
     global scale
-    st.title('XHRO LSL Viewer')
+    st.title('XHRO Viewer')
+    header = st.header('')
     selected_type = st.sidebar.selectbox('Type', ('ACC', 'BIOZ', 'EEG', 'OPT', 'TEMP'))
     scale = st.sidebar.number_input('Scale', min_value=0, max_value=15000, step=1, value=150)
     selected_filter = st.sidebar.selectbox('filter', ('Nofilter','BP2-30Hz', 'BP2-45Hz','BP5-45Hz','BP15-45Hz','BP7-13Hz'))
@@ -44,15 +45,18 @@ def resolve_stream(selected_type):
             setup_tempgraph()
     
 def convert_acc(y):
-    converted = y * 6.1035 * 10**-2
+    # converted = y * 6.1035 * 10**-2
+    converted = y
     converted = math.floor(converted * 100) / 100
     return converted
 def convert_bioz(y):
-    converted = y * 180 // math.pi
+    # converted = y * 180 // math.pi
+    converted = y
     converted = math.floor(converted * 100) / 100
     return converted
 def convert_eeg(y):
-    converted = y * ((2*4.5 // 24) // 0x1000000) * 1000 * 1000
+    # converted = y * ((2*4.5 // 24) // 0x1000000) * 1000 * 1000
+    converted = y
     converted = math.floor(converted * 100) / 100
     return converted
 def convert_opt(y):
@@ -62,8 +66,6 @@ def convert_temp(y):
     converted = y
     converted = math.floor(converted * 1000) / 1000
     return converted
-
-
 
 def setup_graph(streams):
     if len(streams) > 0:
@@ -90,6 +92,12 @@ def setup_accgraph():
         while True:
             update_acc(i, graph, inlet, fig, ax, ax1, ax2)
             i += 1
+    else:
+        print(len(streams))
+        header = st.header('No stream found')
+        time.sleep(1)
+        header.empty()
+        setup_accgraph()
 def setup_eeggraph():
     streams = resolve_byprop('type', 'EEG', timeout=2)
     if len(streams) > 0:
@@ -103,6 +111,12 @@ def setup_eeggraph():
         while True:
             update_eeg(i, graph, inlet, fig, ax, ax1)
             i += 1
+    else:
+        print(len(streams))
+        header = st.header('No stream found')
+        time.sleep(1)
+        header.empty()
+        setup_accgraph()
 def setup_biozgraph():
     streams = resolve_byprop('type', 'BIOZ', timeout=2)
     if len(streams) > 0:
@@ -116,6 +130,12 @@ def setup_biozgraph():
         while True:
             update_bioz(i, graph, inlet, fig, ax, ax1)
             i += 1
+    else:
+        print(len(streams))
+        header = st.header('No stream found')
+        time.sleep(1)
+        header.empty()
+        setup_accgraph()
 def setup_optgraph():
     streams = resolve_byprop('type', 'OPT', timeout=2)
     if len(streams) > 0:
@@ -133,6 +153,12 @@ def setup_optgraph():
         while True:
             update_opt(i, graph, inlet, fig, ax, ax1, ax2, ax3)
             i += 1
+    else:
+        print(len(streams))
+        header = st.header('No stream found')
+        time.sleep(1)
+        header.empty()
+        setup_accgraph()
 def setup_tempgraph():
     streams = resolve_byprop('type', 'TEMP', timeout=2)
     if len(streams) > 0:
@@ -143,6 +169,12 @@ def setup_tempgraph():
         while True:
             update_temp(i, graph, inlet, fig, ax)
             i += 1
+    else:
+        print(len(streams))
+        header = st.header('No stream found')
+        time.sleep(1)
+        header.empty()
+        setup_accgraph()
 
 # アニメーションのフレーム更新関数
 def update(i, graph, inlet, fig, ax, ax1):
@@ -195,12 +227,16 @@ def update_acc(i, graph, inlet, fig, ax, ax1, ax2):
         ax.plot(x, y)
         ax1.cla()
         ax1.set_xlim(x[-1]-10, x[-1])
+        tick_positions = [np.mean(y1)]
+        ax1.set_yticks(tick_positions)
         ax1.set_ylim(np.mean(y1) - scale/2, np.mean(y1) + scale/2)
         ax1.yaxis.tick_right()
         ax1.set_ylabel('ch2')
         ax1.plot(x, y1)
         ax2.cla()
         ax2.set_xlim(x[-1]-10, x[-1])
+        tick_positions = [np.mean(y2)]
+        ax2.set_yticks(tick_positions)
         ax2.set_ylim(np.mean(y2) - scale/2, np.mean(y2) + scale/2)
         ax2.yaxis.tick_right()
         ax2.set_ylabel('ch3')
@@ -222,12 +258,16 @@ def update_eeg(i, graph, inlet, fig, ax, ax1):
     if x[-1] % 1 == 0:
         ax.cla()
         ax.set_xlim(x[-1]-10, x[-1])
+        ticks_positions = [np.mean(y)]
+        ax.set_yticks(ticks_positions)
         ax.set_ylim(np.mean(y) - scale/2, np.mean(y) + scale/2)
         ax.yaxis.tick_right()
         ax.set_ylabel('ch1')
         ax.plot(x, y)
         ax1.cla()
         ax1.set_xlim(x[-1]-10, x[-1])
+        ticks_positions = [np.mean(y1)]
+        ax1.set_yticks(ticks_positions)
         ax1.set_ylim(np.mean(y1) - scale/2, np.mean(y1) + scale/2)
         ax1.yaxis.tick_right()
         ax1.set_ylabel('ch2')
@@ -249,12 +289,16 @@ def update_bioz(i, graph, inlet, fig, ax, ax1):
     if x[-1] % 1 == 0:
         ax.cla()
         ax.set_xlim(x[-1]-10, x[-1])
+        ticks_positions = [np.mean(y)]
+        ax.set_yticks(ticks_positions)
         ax.set_ylim(np.mean(y) - scale/2, np.mean(y) + scale/2)
         ax.yaxis.tick_right()
         ax.set_ylabel('ch1')
         ax.plot(x, y)
         ax1.cla()
         ax1.set_xlim(x[-1]-10, x[-1])
+        ticks_positions = [np.mean(y1)]
+        ax1.set_yticks(ticks_positions)
         ax1.set_ylim(np.mean(y1) - scale/2, np.mean(y1) + scale/2)
         ax1.yaxis.tick_right()
         ax1.set_ylabel('ch2')
@@ -280,24 +324,32 @@ def update_opt(i, graph, inlet, fig, ax, ax1, ax2, ax3):
     if x[-1] % 1 == 0:
         ax.cla()
         ax.set_xlim(x[-1]-10, x[-1])
+        ticks_positions = [np.mean(y)]
+        ax.set_yticks(ticks_positions)
         ax.set_ylim(np.mean(y) - scale/2, np.mean(y) + scale/2)
         ax.yaxis.tick_right()
         ax.set_ylabel('ch1')
         ax.plot(x, y)
         ax1.cla()
         ax1.set_xlim(x[-1]-10, x[-1])
+        ticks_positions = [np.mean(y1)]
+        ax1.set_yticks(ticks_positions)
         ax1.set_ylim(np.mean(y1) - scale/2, np.mean(y1) + scale/2)
         ax1.yaxis.tick_right()
         ax1.set_ylabel('ch2')
         ax1.plot(x, y1)
         ax2.cla()
         ax2.set_xlim(x[-1]-10, x[-1])
+        ticks_positions = [np.mean(y2)]
+        ax2.set_yticks(ticks_positions)
         ax2.set_ylim(np.mean(y2) - scale/2, np.mean(y2) + scale/2)
         ax2.yaxis.tick_right()
         ax2.set_ylabel('ch3')
         ax2.plot(x, y2)
         ax3.cla()
         ax3.set_xlim(x[-1]-10, x[-1])
+        ticks_positions = [np.mean(y3)]
+        ax3.set_yticks(ticks_positions)
         ax3.set_ylim(np.mean(y3) - scale/2, np.mean(y3) + scale/2)
         ax3.yaxis.tick_right()
         ax3.set_ylabel('ch4')
@@ -317,6 +369,8 @@ def update_temp(i, graph, inlet, fig, ax):
     if x[-1] % 1 == 0:
         ax.cla()
         ax.set_xlim(x[-1]-10, x[-1])
+        tick_positions = [np.mean(y)]
+        ax.set_yticks(tick_positions)
         tick_positions = [np.mean(y)]
         ax.set_ylim(np.mean(y) - scale/2, np.mean(y) + scale/2)
         ax.set_yticks(tick_positions)
